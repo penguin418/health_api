@@ -152,3 +152,4 @@ fabric.properties
 
 /flask/config/production.py
 /venv/
+/config/config.py
