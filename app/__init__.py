@@ -1,6 +1,11 @@
 from flask import Flask
+from flask_sqlalchemy import SQLAlchemy
 
 from app.config import config
+
+
+# db 초기화
+db = SQLAlchemy()
 
 
 def create_app():
@@ -8,5 +13,9 @@ def create_app():
 
     # 설정
     app.config.from_object(config)
+
+    # db 참조
+    db.init_app(app)
+    from .models import Person, Concept, DrugExposure, Death, ConditionOccurrence
 
     return app
