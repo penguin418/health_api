@@ -1,3 +1,5 @@
+from sqlalchemy import func, extract
+
 from . import db
 
 
@@ -14,6 +16,10 @@ class Concept(db.Model):
     valid_start_date = db.Column(db.Date)
     valid_end_date = db.Column(db.Date)
     invalid_reason = db.Column(db.String(50))
+
+    @classmethod
+    def get_name(cls):
+        return cls.__name__
 
 
 class ConditionOccurrence(db.Model):
@@ -36,6 +42,10 @@ class ConditionOccurrence(db.Model):
     condition_source_concept_id = db.Column(db.Integer, db.ForeignKey('concept.concept_id'))
     condition_status_source_value = db.Column(db.String(50))
 
+    @classmethod
+    def get_name(cls):
+        return cls.__name__
+
 
 class Death(db.Model):
     __tablename__ = 'death'
@@ -47,6 +57,10 @@ class Death(db.Model):
     cause_concept_id = db.Column(db.BigInteger, db.ForeignKey('concept.concept_id'))
     cause_source_value = db.Column(db.Integer)
     cause_source_concept_id = db.Column(db.BigInteger, db.ForeignKey('concept.concept_id'))
+
+    @classmethod
+    def get_name(cls):
+        return cls.__name__
 
 
 class DrugExposure(db.Model):
@@ -76,6 +90,10 @@ class DrugExposure(db.Model):
     route_source_value = db.Column(db.String(50))
     dose_unit_source_value = db.Column(db.String(50))
 
+    @classmethod
+    def get_name(cls):
+        return cls.__name__
+
 
 class Person(db.Model):
     __tablename__ = 'person'
@@ -99,6 +117,51 @@ class Person(db.Model):
     ethnicity_source_value = db.Column(db.String(50))
     ethnicity_source_concept_id = db.Column(db.Integer)
 
+    @classmethod
+    def get_name(cls):
+        return cls.__name__
+
+    @staticmethod
+    def count_all_patients():
+        result = db.session \
+            .query(func.count(Person.person_id)).all()
+        return result
+
+    @staticmethod
+    def count_patients_by_gender():
+        result = db.session \
+            .query(Concept.concept_name, func.count(Concept.concept_name)) \
+            .filter(Person.gender_concept_id == Concept.concept_id) \
+            .group_by(Concept.concept_name) \
+            .all()
+        return dict(result)
+
+    @staticmethod
+    def count_patients_by_race():
+        result = db.session \
+            .query(Concept.concept_name, func.count(Concept.concept_name)) \
+            .filter(Person.race_concept_id == Concept.concept_id) \
+            .group_by(Concept.concept_name) \
+            .all()
+        return dict(result)
+
+    @staticmethod
+    def count_patients_by_ethnicity():
+        result = db.session \
+            .query(Concept.concept_name, func.count(Concept.concept_name)) \
+            .filter(Person.ethnicity_concept_id == Concept.concept_id) \
+            .group_by(Concept.concept_name) \
+            .all()
+        return dict(result)
+
+    @staticmethod
+    def count_dead_patients(cls):
+        result = db.session \
+            .query(func.count(Death.person_id)) \
+            .filter(Person.person_id == Death.person_id) \
+            .all()
+        return result
+
 
 class VisitOccurrence(db.Model):
     __tablename__ = 'visit_occurrence'
@@ -120,3 +183,7 @@ class VisitOccurrence(db.Model):
     discharge_to_source_value = db.Column(db.String(50))
     discharge_to_concept_id = db.Column(db.Integer, db.ForeignKey('concept.concept_id'))
     preceding_visit_occurrence_id = db.Column(db.BigInteger, db.ForeignKey('visit_occurrence.visit_occurrence_id'))
+
+    @classmethod
+    def get_name(cls):
+        return cls.__name__

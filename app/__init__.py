@@ -18,4 +18,8 @@ def create_app():
     db.init_app(app)
     from .models import Person, Concept, DrugExposure, Death, ConditionOccurrence
 
+    # api 초기화
+    from .apis import api as api
+    api.init_app(app)
+
     return app
