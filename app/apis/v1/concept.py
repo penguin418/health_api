@@ -29,14 +29,14 @@ parser.add_argument(
 concept = api.model('concept', {
     'concept_id': fields.Integer,
     'concept_name': fields.String,
-    # 'domain_id': fields.String,
-    # 'vocabulary_id': fields.String,
-    # 'concept_class_id': fields.String,
-    # 'standard_concept': fields.String,
-    # 'concept_code': fields.String,
-    # 'valid_start_date': fields.Date,
-    # 'valid_end_date': fields.Date,
-    # 'invalid_reason': fields.String,
+    'domain_id': fields.String,
+    'vocabulary_id': fields.String,
+    'concept_class_id': fields.String,
+    'standard_concept': fields.String,
+    'concept_code': fields.String,
+    'valid_start_date': fields.Date,
+    'valid_end_date': fields.Date,
+    'invalid_reason': fields.String,
 })
 
 concept_result = api.model('concept_result', {
