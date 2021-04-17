@@ -53,6 +53,17 @@ class ConditionOccurrence(db.Model):
     def get_name(cls):
         return cls.__name__
 
+    @staticmethod
+    def search(search_query, page, limit):
+        return []
+        # condition_name = db.session.query(Concept.concept_name, ConditionOccurrence.condition_occurrence_id)\
+        #     .filter(Concept.concept_id, ConditionOccurrence.condition_concept_id)
+        # result_set = ConditionOccurrence.query(
+        #     ConditionOccurrence.condition_occurrence_id,
+        #     ConditionOccurrence.person_id,
+        # )
+        # return result_set
+
 
 class Death(db.Model):
     __tablename__ = 'death'
