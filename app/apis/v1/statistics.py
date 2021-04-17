@@ -46,7 +46,7 @@ class PersonStats(Resource):
             response['data'] = pack_data(PersonStats.calculate_sum[by]())
         return response
 
-    """by 옵션과 함께 사용되는 메서드"""
+    """by 옵션과 함께 사용되는 sum 메서드"""
     calculate_sum = {
         'none': Person.count_all_patients,
         'gender': Person.count_patients_by_gender,
@@ -54,6 +54,30 @@ class PersonStats(Resource):
         'ethnicity': Person.count_patients_by_ethnicity,
     }
 
+
+@api.route('/visit_occurrences')
+class VisitOccurrence(Resource):
+    @api.marshal_list_with(stats_list)
+    @api.expect(parser)
+    def get(self):
+        """병원 방문과 관련된 통계를 제공합니다"""
+        args = parser.parse_args()
+        stat_type = 'sum'
+        by = args['by'] if args['by'] else 'none'
+        response = {'table': VisitOccurrence.get_name(), 'stat_type': stat_type, 'by': by}
+        if stat_type == 'sum':
+            response['data'] = pack_data(VisitOccurrence.calculate_sum[by]())
+        return response
+
+    """by 옵션과 함께 사용되는 sum 메서드"""
+    calculate_sum = {
+        'none': VisitOccurrence.count_visit_all,
+        'cause': VisitOccurrence.count_visit_by_concept,
+        'gender': VisitOccurrence.count_visit_by_gender,
+        'race': VisitOccurrence.count_visit_by_race,
+        'ethnicity': VisitOccurrence.count_visit_by_ethnicity,
+        'age_group': VisitOccurrence.count_visit_by_age_group,
+    }
 
 def pack_data(data):
     if len(data) == 1:

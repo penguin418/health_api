@@ -1,4 +1,4 @@
-from sqlalchemy import func, extract
+from sqlalchemy import func, extract, cast, String, and_
 
 from . import db
 
@@ -20,6 +20,13 @@ class Concept(db.Model):
     @classmethod
     def get_name(cls):
         return cls.__name__
+
+    @staticmethod
+    def search_by_id(search_query, page, limit):
+        result_set = Concept.query\
+            .filter(cast(Concept.concept_id, String).like('%'+search_query+'%'))\
+            .paginate(page, per_page=limit, error_out=False).items
+        return result_set
 
 
 class ConditionOccurrence(db.Model):
@@ -187,3 +194,63 @@ class VisitOccurrence(db.Model):
     @classmethod
     def get_name(cls):
         return cls.__name__
+
+    @staticmethod
+    def count_visit_all():
+        result = db.session \
+            .query(func.count(VisitOccurrence.visit_occurrence_id)).all()
+        return dict(result)
+
+    @staticmethod
+    def count_visit_by_concept():
+        result = db.session \
+            .query(Concept.concept_name, func.count(Concept.concept_name)) \
+            .filter(VisitOccurrence.visit_concept_id == Concept.concept_id) \
+            .group_by(Concept.concept_name) \
+            .all()
+        return dict(result)
+
+    @staticmethod
+    def count_visit_by_gender():
+        result = db.session \
+            .query(Concept.concept_name, func.count(Concept.concept_name)) \
+            .filter(VisitOccurrence.person_id == Person.person_id) \
+            .filter(Person.gender_concept_id == Concept.concept_id) \
+            .group_by(Concept.concept_name) \
+            .all()
+        return dict(result)
+
+    @staticmethod
+    def count_visit_by_race():
+        result = db.session \
+            .query(Concept.concept_name, func.count(Concept.concept_name)) \
+            .filter(VisitOccurrence.person_id == Person.person_id) \
+            .filter(Person.race_concept_id == Concept.concept_id) \
+            .group_by(Concept.concept_name) \
+            .all()
+        return dict(result)
+
+    @staticmethod
+    def count_visit_by_ethnicity():
+        result = db.session \
+            .query(Concept.concept_name, func.count(Concept.concept_name)) \
+            .filter(VisitOccurrence.person_id == Person.person_id) \
+            .filter(Person.ethnicity_concept_id == Concept.concept_id) \
+            .group_by(Concept.concept_name) \
+            .all()
+        return dict(result)
+
+    @staticmethod
+    def count_visit_by_age_group():
+        # select age_group, person_id
+        ages = db.session.query(
+            (func.floor(extract('year', (func.age(Person.birth_datetime))) / 10) * 10).label('age_group'),
+            Person.person_id.label('person_id')
+        ).subquery()
+        # group by age_group
+        result = db.session \
+            .query(ages.c.age_group, func.count(ages.c.age_group)) \
+            .filter(VisitOccurrence.person_id == ages.c.person_id) \
+            .group_by(ages.c.age_group) \
+            .all()
+        return dict(result)
